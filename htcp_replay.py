@@ -62,11 +62,12 @@ def parse_victim():
     global dport
     global vfile
     global victims
-if not vfile:
+    if not vfile:
         victims.append((dst,dport))
 
 def nqhandler(packet):
     global conns
+    global victims
 
     pkt = IP(packet.get_payload())
 
@@ -77,7 +78,6 @@ def nqhandler(packet):
             attacker.connect((victim[0],victim[1]))
             print "[+] Connection "+victim[0]+":"+str(victim[1])+" success"
             conns.update({victim:attacker})
-	    print conns
 
         if victim in conns.keys():
             attacker = conns[victim]
@@ -89,6 +89,7 @@ def nqhandler(packet):
                 
         if pkt.haslayer(Raw):
             attacker.send(pkt[Raw].load)
+    	    print "[R] RECV from {}:{} SEND to {}:{}".format(pkt[IP].src,pkt[TCP].sport,pkt[IP].dst,pkt[TCP].dport,victim[0],str(victim[1]))
 
     packet.accept()
 
